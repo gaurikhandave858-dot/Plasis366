@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Plasis366.API/Plasis366.API.csproj" />
+  <Project Path="Plasis366.Application/Plasis366.Application.csproj" />
+  <Project Path="Plasis366.Domain/Plasis366.Domain.csproj" />
+  <Project Path="Plasis366.Infrastruture/Plasis366.Infrastruture.csproj" />
+</Solution>

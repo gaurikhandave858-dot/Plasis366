@@ -16,7 +16,7 @@ namespace Plasis366.Domain
         public long RegionId { get; set; }
 
         // Navigation Property
-        public Region Region { get; set; } = null!;
+        public Region? Region { get; set; }
 
         // Navigation Property
         public ICollection<State> States { get; set; } = new List<State>();

@@ -16,7 +16,7 @@ namespace Plasis366.Domain
         public long CountryId { get; set; }
 
         // Navigation Property
-        public Country Country { get; set; } = null!;
+        public Country? Country { get; set; }
 
         // Navigation Property
         public ICollection<District> Districts { get; set; } = new List<District>();

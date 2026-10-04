@@ -14,7 +14,7 @@ namespace Plasis366.Domain
 
         public DateTime? ModifiedDate { get; set; }= DateTime.Now;
 
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
         public long VersionNumber { get; set; }
     }
 }

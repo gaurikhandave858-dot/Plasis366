@@ -12,10 +12,10 @@ namespace Plasis366.Domain
 
         public string? CityCode { get; set; }
 
-        // Foreign Key
         public long TalukaId { get; set; }
 
-        // Navigation Property
-        public Taluka Taluka { get; set; } = null!;
+        public Taluka? Taluka { get; set; }
+
+
     }
 }

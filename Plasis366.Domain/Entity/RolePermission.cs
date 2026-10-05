@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Plasis366.Domain
 {
-    public class RolePermission
+    public class RolePermission : AuditEntity
     {
         public long RolePermissionId { get; set; }
 
@@ -13,8 +13,8 @@ namespace Plasis366.Domain
         public long PermissionId { get; set; }
 
         // Navigation Properties
-        public Role Role { get; set; } = null!;
+        public Role? Role { get; set; }
 
-        public Permission Permission { get; set; } = null!;
+        public Permission? Permission { get; set; }
     }
 }

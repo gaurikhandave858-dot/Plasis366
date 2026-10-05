@@ -16,7 +16,7 @@ namespace Plasis366.Domain
         public long StateId { get; set; }
 
         // Navigation Property
-        public State State { get; set; } = null!;
+        public State? State { get; set; }
 
         // Navigation Property
         public ICollection<Taluka> Talukas { get; set; } = new List<Taluka>();

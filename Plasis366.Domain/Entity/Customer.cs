@@ -23,9 +23,8 @@ namespace Plasis366.Domain
         public string? Address { get; set; }
 
         // Navigation Properties
-        public Tenant Tenant { get; set; } = null!;
-
-        public User User { get; set; } = null!;
+        public Tenant? Tenant { get; set; }
+        public User? User { get; set; }
 
         // Navigation Property
         public ICollection<Project> Projects { get; set; }

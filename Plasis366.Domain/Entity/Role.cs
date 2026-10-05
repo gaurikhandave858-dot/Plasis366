@@ -16,7 +16,7 @@ namespace Plasis366.Domain
         public string? Description { get; set; }
 
         // Navigation Property
-        public Tenant Tenant { get; set; } = null!;
+        public Tenant? Tenant { get; set; }
 
         // Navigation Properties
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();

@@ -16,7 +16,7 @@ namespace Plasis366.Domain
         public long DistrictId { get; set; }
 
         // Navigation Property
-        public District District { get; set; } = null!;
+        public District? District { get; set; }
 
         // Navigation Property
         public ICollection<City> Cities { get; set; } = new List<City>();

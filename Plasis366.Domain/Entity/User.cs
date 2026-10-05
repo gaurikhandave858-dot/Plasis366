@@ -26,7 +26,7 @@ namespace Plasis366.Domain
         public string? ProfileImage { get; set; }
 
         // Navigation Property
-        public Tenant Tenant { get; set; } = null!;
+        public Tenant? Tenant { get; set; }
 
         // Navigation Property
         public ICollection<UserRole> UserRoles { get; set; }

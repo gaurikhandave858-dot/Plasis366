@@ -14,8 +14,8 @@ namespace Plasis366.Domain
         public long RoleId { get; set; }
 
         // Navigation Properties
-        public User User { get; set; } = null!;
+        public User? User { get; set; }
 
-        public Role Role { get; set; } = null!;
+        public Role? Role { get; set; }
     }
 }

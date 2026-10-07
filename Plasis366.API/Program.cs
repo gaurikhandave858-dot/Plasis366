@@ -43,6 +43,34 @@ builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
 builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IPropertyService, PropertyService>();
+
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+
+builder.Services.AddScoped< IDesignRequirementRepository, DesignRequirementRepository>();
+builder.Services.AddScoped< IDesignRequirementService, DesignRequirementService>();
+
+builder.Services.AddScoped<IProjectAttachmentRepository, ProjectAttachmentRepository>();
+builder.Services.AddScoped<IProjectAttachmentService, ProjectAttachmentService>();
+
+builder.Services.AddScoped< IDesignProposalRepository,DesignProposalRepository>();
+builder.Services.AddScoped< IDesignProposalService, DesignProposalService>();
+
+builder.Services.AddScoped< IProjectStatusHistoryRepository, ProjectStatusHistoryRepository>();
+builder.Services.AddScoped<IProjectStatusHistoryService,ProjectStatusHistoryService>();
+
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));

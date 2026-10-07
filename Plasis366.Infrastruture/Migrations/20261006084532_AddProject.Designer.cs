@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Plasis366.Infrastructure;
 
@@ -11,9 +12,11 @@ using Plasis366.Infrastructure;
 namespace Plasis366.Infrastruture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006084532_AddProject")]
+    partial class AddProject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,7 +260,6 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("Budget")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<long?>("CreatedBy")
@@ -912,7 +914,6 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("Height")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
@@ -921,7 +922,6 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasDefaultValue(true);
 
                     b.Property<decimal?>("Length")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<long?>("ModifiedBy")
@@ -946,7 +946,6 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasDefaultValue(1L);
 
                     b.Property<decimal?>("Width")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("WindowCount")

@@ -25,8 +25,8 @@ namespace Plasis366.Domain
         public DateTime? SubmittedDate { get; set; }
 
         // Navigation Properties
-        public Project Project { get; set; } = null!;
+        public Project? Project { get; set; }
 
-        public User SubmittedByUser { get; set; } = null!;
+        public User? SubmittedByUser { get; set; }
     }
 }

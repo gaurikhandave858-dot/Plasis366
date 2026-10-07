@@ -38,8 +38,7 @@ namespace Plasis366.Domain
         public int? NumberOfBathrooms { get; set; }
 
         // Navigation Properties
-        public Project Project { get; set; } = null!;
-
+        public Project? Project { get; set; }
         public Country? Country { get; set; }
 
         public Region? Region { get; set; }

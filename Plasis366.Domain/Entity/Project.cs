@@ -33,9 +33,9 @@ namespace Plasis366.Domain
         public DateTime? ExpectedCompletionDate { get; set; }
 
         // Navigation Properties
-        public Tenant Tenant { get; set; } = null!;
+        public Tenant? Tenant { get; set; }
 
-        public Customer Customer { get; set; } = null!;
+        public Customer? Customer { get; set; }
 
         public User? DesignerUser { get; set; }
 

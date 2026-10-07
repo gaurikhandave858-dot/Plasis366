@@ -21,7 +21,7 @@ namespace Plasis366.Domain
         public DateTime? ReadDate { get; set; }
 
         // Navigation Properties
-        public User User { get; set; } = null!;
+        public User? User { get; set; }
 
         public Project? Project { get; set; }
     }

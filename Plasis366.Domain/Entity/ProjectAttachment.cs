@@ -21,6 +21,6 @@ namespace Plasis366.Domain
         public string? Description { get; set; }
 
         // Navigation Property
-        public Project Project { get; set; } = null!;
+        public Project? Project { get; set; }
     }
 }

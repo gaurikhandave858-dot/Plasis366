@@ -27,8 +27,7 @@ namespace Plasis366.Domain
         public string? Details { get; set; }
 
         // Navigation Property
-        public Property Property { get; set; } = null!;
-
+        public Property? Property { get; set; }
         // Navigation Property
         public ICollection<DesignRequirement> DesignRequirements { get; set; }
             = new List<DesignRequirement>();

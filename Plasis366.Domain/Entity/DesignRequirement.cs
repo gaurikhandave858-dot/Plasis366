@@ -29,7 +29,7 @@ namespace Plasis366.Domain
         public string? AdditionalNotes { get; set; }
 
         // Navigation Properties
-        public Project Project { get; set; } = null!;
+        public Project? Project { get; set; }
 
         public Room? Room { get; set; }
     }

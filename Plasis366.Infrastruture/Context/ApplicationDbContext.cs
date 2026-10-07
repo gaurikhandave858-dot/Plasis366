@@ -88,8 +88,24 @@ namespace Plasis366.Infrastructure
             modelBuilder.Entity<Room>()
                 .HasKey(x => x.RoomId);
 
+            modelBuilder.Entity<Room>()
+                .Property(x => x.Length)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Room>()
+                .Property(x => x.Width)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Room>()
+                .Property(x => x.Height)
+                .HasPrecision(18, 2);
+
             modelBuilder.Entity<DesignRequirement>()
                 .HasKey(x => x.DesignRequirementId);
+
+            modelBuilder.Entity<DesignRequirement>()
+                .Property(x => x.Budget)
+                .HasPrecision(18, 2);
 
             modelBuilder.Entity<ProjectAttachment>()
                 .HasKey(x => x.ProjectAttachmentId);
@@ -412,6 +428,14 @@ namespace Plasis366.Infrastructure
                 .Property(x => x.Status)
                 .HasMaxLength(50)
                 .IsRequired();
+
+            modelBuilder.Entity<Project>()
+               .Property(x => x.BudgetMin)
+               .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Project>()
+                .Property(x => x.BudgetMax)
+                .HasPrecision(18, 2);
 
             modelBuilder.Entity<Notification>()
                 .Property(x => x.Title)

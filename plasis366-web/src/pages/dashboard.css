@@ -1,0 +1,282 @@
+/* Dashboard, built on the theme variables from index.css */
+
+.pd {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  font-family: var(--sans);
+  color: var(--ink);
+}
+
+.pd h1,
+.pd h2 {
+  margin: 0;
+}
+
+/* welcome banner: same olive overlay and photo as the login page */
+.pd-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 2rem 2.25rem;
+  border-radius: 8px;
+  color: var(--cream);
+  background:
+    linear-gradient(rgba(124, 116, 70, 0.82), rgba(95, 90, 56, 0.9)),
+    url('/interior.jpg') center/cover no-repeat,
+    var(--olive);
+  animation: rise 0.6s both;
+}
+
+.pd-hero-small {
+  margin: 0;
+  font-family: var(--script);
+  font-size: 1.7rem;
+  line-height: 1.2;
+  color: var(--cream);
+}
+
+.pd-hero h1 {
+  font-size: 2.6rem;
+  font-weight: 500;
+  color: var(--cream);
+  text-shadow: 0 2px 14px rgba(60, 55, 30, 0.35);
+}
+
+.pd-hero-sub {
+  margin: 0.4rem 0 0;
+  color: var(--cream);
+  opacity: 0.9;
+}
+
+.pd-hero-btn {
+  display: inline-block;
+  padding: 13px 22px;
+  border-radius: 6px;
+  background: var(--cream);
+  color: var(--olive-d);
+  font: 500 0.85rem var(--sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: 0.25s;
+}
+
+.pd-hero-btn:hover {
+  background: #fff;
+  color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 22px -12px var(--ink);
+}
+
+/* stat cards */
+.pd-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
+.pd-stat {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  transition: 0.25s;
+  animation: rise 0.6s 0.1s both;
+}
+
+.pd-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 24px -16px var(--ink);
+  border-color: var(--olive);
+}
+
+.pd-stat-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+}
+
+.pd-stat-icon .ico {
+  width: 22px;
+  height: 22px;
+}
+
+/* kept the old class names so the JSX needs no change */
+.tone-teal   { background: rgba(139, 132, 86, 0.2);  color: var(--olive-d); }
+.tone-amber  { background: rgba(185, 138, 82, 0.22); color: #8a5a1f; }
+.tone-violet { background: rgba(166, 61, 42, 0.12);  color: #a63d2a; }
+.tone-green  { background: rgba(77, 107, 58, 0.16);  color: #4d6b3a; }
+
+.pd-stat-value {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--olive-d);
+  font-variant-numeric: lining-nums;
+}
+
+.pd-stat-label {
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* cards */
+.pd-card {
+  padding: 1.4rem 1.6rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  animation: rise 0.6s 0.2s both;
+}
+
+.pd-card-head {
+  margin-bottom: 1rem;
+}
+
+.pd-card-head h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.pd-card-head h2::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 2px;
+  margin-top: 6px;
+  background: var(--gold);
+}
+
+/* table */
+.pd-table-wrap {
+  overflow-x: auto;
+}
+
+.pd-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+.pd-table th {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--olive-d);
+  border-bottom: 1px solid var(--line);
+}
+
+.pd-table td {
+  padding: 0.9rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.pd-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.pd-table tbody tr {
+  transition: 0.2s;
+}
+
+.pd-table tbody tr:hover {
+  background: var(--cream);
+}
+
+.pd-strong {
+  font-weight: 500;
+}
+
+.pd-muted {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* status badges: earthy tones */
+.pd-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.st-draft     { background: #ece6cf; color: #6b6648; }
+.st-submitted { background: #dfe6d2; color: #4d6b3a; }
+.st-review    { background: #f3e3c3; color: #8a5a1f; }
+.st-progress  { background: #ead9c4; color: #7a4a24; }
+.st-design    { background: #d9e6e0; color: #3f6b5a; }
+.st-customer  { background: #f0dcd6; color: #8f4a3a; }
+.st-approved  { background: #d8e8cd; color: #3d6a2c; }
+.st-revision  { background: #f2d6cf; color: #a63d2a; }
+.st-completed { background: #cfe3c0; color: #335a22; }
+
+/* project journey */
+.pd-flow {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.pd-flow-step {
+  position: relative;
+  flex: 1 0 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.pd-flow-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: calc(50% + 22px);
+  right: calc(-50% + 22px);
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.55;
+}
+
+.pd-flow-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--olive-d);
+  color: var(--cream);
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.pd-flow-text {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}

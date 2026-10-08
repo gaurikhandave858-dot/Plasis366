@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Plasis366.Application;
 using Plasis366.Application.Services;
 using Plasis366.Infrastructure;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,21 +58,20 @@ builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 
-builder.Services.AddScoped< IDesignRequirementRepository, DesignRequirementRepository>();
-builder.Services.AddScoped< IDesignRequirementService, DesignRequirementService>();
+builder.Services.AddScoped<IDesignRequirementRepository, DesignRequirementRepository>();
+builder.Services.AddScoped<IDesignRequirementService, DesignRequirementService>();
 
 builder.Services.AddScoped<IProjectAttachmentRepository, ProjectAttachmentRepository>();
 builder.Services.AddScoped<IProjectAttachmentService, ProjectAttachmentService>();
 
-builder.Services.AddScoped< IDesignProposalRepository,DesignProposalRepository>();
-builder.Services.AddScoped< IDesignProposalService, DesignProposalService>();
+builder.Services.AddScoped<IDesignProposalRepository, DesignProposalRepository>();
+builder.Services.AddScoped<IDesignProposalService, DesignProposalService>();
 
-builder.Services.AddScoped< IProjectStatusHistoryRepository, ProjectStatusHistoryRepository>();
-builder.Services.AddScoped<IProjectStatusHistoryService,ProjectStatusHistoryService>();
+builder.Services.AddScoped<IProjectStatusHistoryRepository, ProjectStatusHistoryRepository>();
+builder.Services.AddScoped<IProjectStatusHistoryService, ProjectStatusHistoryService>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
@@ -77,6 +79,32 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ReactDev", policy =>
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;   // keep "sub" and "role" exactly as written in the token
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+            ValidateLifetime = true,
+            NameClaimType = "name",
+            RoleClaimType = "role"
+        };
+    });
 
 var app = builder.Build();
 
@@ -87,6 +115,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("ReactDev");   // <-- added: must come before UseAuthorization
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

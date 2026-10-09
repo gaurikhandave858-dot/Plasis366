@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import StatusBadge from '../components/StatusBadge'
 import api from '../api'
+import { deleteProject } from '../services/projectService'
 import './dashboard.css'
 
 const FLOW = [
@@ -13,7 +14,7 @@ const FLOW = [
 const CUSTOMER = {
   subtitle: 'Track your interior design projects in one place.',
   action: { label: '+ New Project', to: '/projects/new' },
-  tableTitle: 'Recent projects',
+  tableTitle: 'My projects',
   partyLabel: 'Designer',
 }
 
@@ -62,26 +63,70 @@ function Dashboard() {
   const isStaff =
     roles.includes('Designer') || roles.includes('Manager') || roles.includes('Admin')
 
-  const [live, setLive] = useState(EMPTY)
+  const [live, setLive] = useState(EMPTY)        // stat numbers
+  const [projects, setProjects] = useState(null) // full project list (null = still loading)
+  const [error, setError] = useState('')
+  const [toDelete, setToDelete] = useState(null)
+  const [deleting, setDeleting] = useState(false)
+
+  const load = useCallback(
+    () =>
+      Promise.all([api.get('/MyProjects/dashboard'), api.get('/MyProjects')])
+        .then(([dash, list]) => {
+          setLive(dash.data)
+          setProjects(list.data)
+        })
+        .catch((err) => {
+          console.error('Dashboard load failed', err)
+          setError('Could not load your projects. Is the API running?')
+          setProjects((p) => p ?? [])
+        }),
+    []
+  )
 
   useEffect(() => {
     if (isStaff) return
-  api.get('/MyProjects/dashboard')
-      .then((res) => setLive(res.data))
-      .catch((err) => console.error('Dashboard load failed', err))
-  }, [isStaff])
+    load()
+  }, [isStaff, load])
+
+  // Escape closes the delete confirmation
+  useEffect(() => {
+    if (!toDelete) return
+    const onKey = (e) => {
+      if (e.key === 'Escape' && !deleting) setToDelete(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [toDelete, deleting])
+
+  const confirmDelete = async () => {
+    setDeleting(true)
+    setError('')
+    try {
+      await deleteProject(toDelete.id)
+      await load()   // refresh the table and the stat cards
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not delete the project.')
+    } finally {
+      setDeleting(false)
+      setToDelete(null)
+    }
+  }
+
+  const loading = !isStaff && projects === null
 
   const view = isStaff
-    ? DESIGNER
+    ? { ...DESIGNER, showActions: false }
     : {
         ...CUSTOMER,
+        showActions: true,
         stats: [
           { label: 'My projects', value: live.stats.total },
           { label: 'Drafts', value: live.stats.drafts },
           { label: 'Design in progress', value: live.stats.designInProgress },
           { label: 'Completed', value: live.stats.completed },
         ],
-        rows: live.recent.map((r) => ({
+        rows: (projects ?? []).map((r) => ({
           id: r.projectId,
           name: r.name,
           property: [r.propertyType, r.city].filter(Boolean).join(', ') || '—',
@@ -121,6 +166,9 @@ function Dashboard() {
         <div className="pd-card-head">
           <h2>{view.tableTitle}</h2>
         </div>
+
+        {error && <p className="err" style={{ marginTop: 0 }}>{error}</p>}
+
         <div className="pd-table-wrap">
           <table className="pd-table">
             <thead>
@@ -130,6 +178,7 @@ function Dashboard() {
                 <th>{view.partyLabel}</th>
                 <th>Status</th>
                 <th>Updated</th>
+                {view.showActions && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -140,11 +189,29 @@ function Dashboard() {
                   <td>{r.party}</td>
                   <td><StatusBadge status={r.status} /></td>
                   <td className="pd-muted">{r.updated}</td>
+                  {view.showActions && (
+                    <td>
+                      <div className="pd-actions">
+                        {r.status === 'Draft' ? (
+                          <>
+                            <Link className="pd-act" to={`/projects/${r.id}/edit`}>Edit</Link>
+                            <button type="button" className="pd-act danger" onClick={() => setToDelete(r)}>
+                              Delete
+                            </button>
+                          </>
+                        ) : (
+                          <Link className="pd-act" to={`/projects/${r.id}`}>View</Link>
+                        )}
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
               {view.rows.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="pd-muted">No projects yet.</td>
+                  <td colSpan={view.showActions ? 6 : 5} className="pd-muted">
+                    {loading ? 'Loading your projects…' : 'No projects yet.'}
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -165,6 +232,31 @@ function Dashboard() {
           ))}
         </div>
       </section>
+
+      {toDelete && (
+        <div className="pd-modal-back" onClick={() => !deleting && setToDelete(null)}>
+          <div
+            className="pd-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="del-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="del-title">Delete this draft?</h3>
+            <p>
+              "{toDelete.name}" and its uploaded files will be removed. This can't be undone from the app.
+            </p>
+            <div className="pd-modal-btns">
+              <button type="button" className="pd-act" onClick={() => setToDelete(null)} disabled={deleting}>
+                Cancel
+              </button>
+              <button type="button" className="btn-c danger" onClick={confirmDelete} disabled={deleting}>
+                {deleting ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

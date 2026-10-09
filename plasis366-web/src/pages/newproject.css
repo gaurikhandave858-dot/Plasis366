@@ -1,0 +1,74 @@
+.np-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 16px; }
+.np-field { display: flex; flex-direction: column; margin-bottom: 16px; }
+.np-field.full { grid-column: 1 / -1; }
+.np-field label {
+  font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--olive-d); margin-bottom: 6px;
+}
+.np-field input, .np-field select, .np-field textarea {
+  width: 100%; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: var(--card); font: inherit; color: var(--ink);
+  transition: 0.2s;
+}
+.np-field textarea { min-height: 90px; resize: vertical; }
+.np-field input:focus, .np-field select:focus, .np-field textarea:focus {
+  outline: 0; border-color: var(--olive);
+  box-shadow: 0 0 0 4px rgba(139, 132, 86, 0.22);
+}
+.np-field select:disabled { opacity: 0.55; cursor: not-allowed; }
+.np-room {
+  display: grid; grid-template-columns: 1.3fr 1.3fr 0.8fr 0.8fr auto;
+  gap: 12px; align-items: end; margin-bottom: 12px;
+}
+.np-room .np-field { margin-bottom: 0; }
+.np-remove {
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: 6px;
+  background: transparent; color: #a63d2a; font: inherit; cursor: pointer; transition: 0.2s;
+}
+.np-remove:hover { background: #f2d6cf; }
+.np-add {
+  padding: 10px 16px; border: 1px dashed var(--olive); border-radius: 6px;
+  background: transparent; color: var(--olive-d); font: inherit; cursor: pointer; transition: 0.2s;
+}
+.np-add:hover { background: var(--cream); }
+.np-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.np-cancel { color: var(--olive-d); font-weight: 500; }
+@media (max-width: 700px) {
+  .np-grid { grid-template-columns: 1fr; }
+  .np-room { grid-template-columns: 1fr 1fr; }
+}
+/* groups all sections so a whole form can be locked (view-only) in one go */
+.np-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.np-fieldset:disabled input,
+.np-fieldset:disabled select,
+.np-fieldset:disabled textarea {
+  background: var(--cream);
+  color: var(--ink);
+  cursor: default;
+}
+
+.np-notice {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  background: var(--cream);
+  color: #8a5a1f;
+  font-size: 0.9rem;
+}
+   .btn-c.np-secondary {
+     background: transparent;
+     color: var(--olive, #5b6340);
+     border: 1px solid currentColor;
+   }

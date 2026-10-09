@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace Plasis366.Domain
 {
@@ -8,11 +6,12 @@ namespace Plasis366.Domain
     {
         public long RolePermissionId { get; set; }
 
+        [Range(1, long.MaxValue)]
         public long RoleId { get; set; }
 
+        [Range(1, long.MaxValue)]
         public long PermissionId { get; set; }
 
-        // Navigation Properties
         public Role? Role { get; set; }
 
         public Permission? Permission { get; set; }

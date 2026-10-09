@@ -280,3 +280,76 @@
   letter-spacing: 0.04em;
   color: var(--muted);
 }
+
+/* row action buttons */
+.pd-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.pd-act {
+  display: inline-block;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  font: 500 0.78rem var(--sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--olive-d);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pd-act:hover {
+  background: var(--cream);
+  border-color: var(--olive);
+  color: var(--ink);
+}
+
+.pd-act.danger { color: #a63d2a; }
+
+.pd-act.danger:hover {
+  background: #f2d6cf;
+  border-color: #a63d2a;
+  color: #a63d2a;
+}
+
+.pd-act:disabled { opacity: 0.6; cursor: wait; }
+
+/* delete confirmation */
+.pd-modal-back {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(59, 56, 34, 0.45);
+}
+
+.pd-modal {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  animation: rise 0.25s both;
+}
+
+.pd-modal h3 { margin: 0 0 8px; font-size: 1.6rem; }
+.pd-modal p { margin: 0 0 20px; color: var(--muted); }
+
+.pd-modal-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.btn-c.danger { background: #a63d2a; }
+.btn-c.danger:hover { background: #7f2d1f; }

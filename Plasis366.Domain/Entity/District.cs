@@ -1,6 +1,5 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace Plasis366.Domain
 {
@@ -8,17 +7,17 @@ namespace Plasis366.Domain
     {
         public long DistrictId { get; set; }
 
+        [Required, StringLength(100, MinimumLength = 2)]
         public string DistrictName { get; set; } = string.Empty;
 
+        [StringLength(20)]
         public string? DistrictCode { get; set; }
 
-        // Foreign Key
+        [Range(1, long.MaxValue)]
         public long StateId { get; set; }
 
-        // Navigation Property
         public State? State { get; set; }
 
-        // Navigation Property
         public ICollection<Taluka> Talukas { get; set; } = new List<Taluka>();
     }
 }

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Plasis366.Domain
 {
@@ -8,20 +7,22 @@ namespace Plasis366.Domain
     {
         public long ProjectStatusHistoryId { get; set; }
 
+        [Range(1, long.MaxValue)]
         public long ProjectId { get; set; }
 
+        [Required, StringLength(50, MinimumLength = 2)]
         public string Status { get; set; } = string.Empty;
 
+        [StringLength(2000)]
         public string? Remarks { get; set; }
 
         public DateTime StatusDate { get; set; } = DateTime.Now;
 
+        [Range(1, long.MaxValue)]
         public long ChangedBy { get; set; }
 
-        // Navigation Properties
         public Project? Project { get; set; }
+
         public User? ChangedByUser { get; set; }
     }
-
 }
-    

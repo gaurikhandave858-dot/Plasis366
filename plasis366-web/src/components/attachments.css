@@ -1,0 +1,104 @@
+.att-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 28px 16px;
+  text-align: center;
+  border: 1.5px dashed var(--olive);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--olive-d);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.att-drop:hover,
+.att-drop.drag,
+.att-drop:focus-visible {
+  background: var(--cream);
+  border-color: var(--olive-d);
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(139, 132, 86, 0.22);
+}
+
+.att-drop p { margin: 6px 0 0; }
+.att-drop small { color: var(--muted); }
+.att-up { width: 28px; height: 28px; color: var(--olive); }
+
+.att-empty { margin: 12px 0 0; }
+
+.att-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.att-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.att-item .ico { color: var(--olive); }
+.att-new { border-style: dashed; border-color: var(--gold); }
+
+.att-name,
+.att-name-static {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.att-name {
+  padding: 0;
+  border: 0;
+  background: 0;
+  font: inherit;
+  font-weight: 500;
+  color: var(--olive-d);
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.att-name:hover { color: var(--ink); }
+
+.att-size { color: var(--muted); font-size: 0.82rem; white-space: nowrap; }
+
+.att-tag {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a5a1f;
+  white-space: nowrap;
+}
+
+.att-remove {
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  font: 500 0.78rem var(--sans);
+  color: #a63d2a;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.att-remove:hover { background: #f2d6cf; border-color: #a63d2a; }
+
+@media (max-width: 480px) {
+  .att-item { flex-wrap: wrap; }
+  .att-tag { order: 5; width: 100%; }
+}

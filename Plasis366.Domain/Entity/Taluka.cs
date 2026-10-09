@@ -1,24 +1,23 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace Plasis366.Domain
 {
-    public class Taluka :AuditEntity
+    public class Taluka : AuditEntity
     {
         public long TalukaId { get; set; }
 
+        [Required, StringLength(100, MinimumLength = 2)]
         public string TalukaName { get; set; } = string.Empty;
 
+        [StringLength(20)]
         public string? TalukaCode { get; set; }
 
-        // Foreign Key
+        [Range(1, long.MaxValue)]
         public long DistrictId { get; set; }
 
-        // Navigation Property
         public District? District { get; set; }
 
-        // Navigation Property
         public ICollection<City> Cities { get; set; } = new List<City>();
     }
 }

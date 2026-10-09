@@ -1,24 +1,23 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace Plasis366.Domain
 {
-    public class Country: AuditEntity
+    public class Country : AuditEntity
     {
         public long CountryId { get; set; }
 
+        [Required, StringLength(100, MinimumLength = 2)]
         public string CountryName { get; set; } = string.Empty;
 
+        [StringLength(10)]
         public string? CountryCode { get; set; }
 
-        // Foreign Key
+        [Range(1, long.MaxValue)]
         public long RegionId { get; set; }
 
-        // Navigation Property
         public Region? Region { get; set; }
 
-        // Navigation Property
         public ICollection<State> States { get; set; } = new List<State>();
     }
 }

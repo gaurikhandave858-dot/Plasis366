@@ -26,7 +26,7 @@ builder.Services.AddControllers()
 
             return new BadRequestObjectResult(new { message = first, errors });
         };
-    });
+    }); 
 
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 builder.Services.AddScoped<IRegionService, RegionService>();

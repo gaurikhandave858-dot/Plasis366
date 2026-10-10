@@ -37,9 +37,23 @@ const DESIGNER = {
   ],
 }
 
-const EMPTY = {
-  stats: { total: 0, drafts: 0, designInProgress: 0, completed: 0 },
-  recent: [],
+// Each card on the customer dashboard is a group of statuses.
+// Every project belongs to exactly one of Drafts / In progress / Completed.
+const GROUPS = {
+  drafts: { label: 'Drafts', statuses: ['Draft'] },
+  progress: {
+    label: 'In progress',
+    statuses: ['Submitted', 'Under Review', 'Design In Progress', 'Design Submitted', 'Customer Review', 'Revision Requested'],
+  },
+  completed: { label: 'Completed', statuses: ['Approved', 'Completed'] },
+}
+
+// What to show in the Designer column, depending on where the project is
+function designerText(r) {
+  if (r.designer) return r.designer
+  if (r.status === 'Draft') return '—'
+  if (r.status === 'Submitted') return 'Waiting for a designer'
+  return 'Not assigned'
 }
 
 function greeting() {
@@ -63,7 +77,7 @@ function Dashboard() {
   const isStaff =
     roles.includes('Designer') || roles.includes('Manager') || roles.includes('Admin')
 
-  const [live, setLive] = useState(EMPTY)        // stat numbers
+  const [group, setGroup] = useState(null)       // which card is selected (null = all)
   const [projects, setProjects] = useState(null) // full project list (null = still loading)
   const [error, setError] = useState('')
   const [toDelete, setToDelete] = useState(null)
@@ -71,11 +85,8 @@ function Dashboard() {
 
   const load = useCallback(
     () =>
-      Promise.all([api.get('/MyProjects/dashboard'), api.get('/MyProjects')])
-        .then(([dash, list]) => {
-          setLive(dash.data)
-          setProjects(list.data)
-        })
+      api.get('/MyProjects')
+        .then((list) => setProjects(list.data))
         .catch((err) => {
           console.error('Dashboard load failed', err)
           setError('Could not load your projects. Is the API running?')
@@ -115,22 +126,26 @@ function Dashboard() {
 
   const loading = !isStaff && projects === null
 
+  const all = projects ?? []
+  const countIn = (key) => all.filter((r) => GROUPS[key].statuses.includes(r.status)).length
+  const shown = group ? all.filter((r) => GROUPS[group].statuses.includes(r.status)) : all
+
   const view = isStaff
     ? { ...DESIGNER, showActions: false }
     : {
         ...CUSTOMER,
         showActions: true,
         stats: [
-          { label: 'My projects', value: live.stats.total },
-          { label: 'Drafts', value: live.stats.drafts },
-          { label: 'Design in progress', value: live.stats.designInProgress },
-          { label: 'Completed', value: live.stats.completed },
+          { key: null, label: 'My projects', value: all.length },
+          { key: 'drafts', label: GROUPS.drafts.label, value: countIn('drafts') },
+          { key: 'progress', label: GROUPS.progress.label, value: countIn('progress') },
+          { key: 'completed', label: GROUPS.completed.label, value: countIn('completed') },
         ],
-        rows: (projects ?? []).map((r) => ({
+        rows: shown.map((r) => ({
           id: r.projectId,
           name: r.name,
           property: [r.propertyType, r.city].filter(Boolean).join(', ') || '—',
-          party: r.designer || 'Not assigned yet',
+          party: designerText(r),
           status: r.status,
           updated: timeAgo(r.updated),
         })),
@@ -152,19 +167,44 @@ function Dashboard() {
       </section>
 
       <section className="pd-stats">
-        {view.stats.map((s) => (
-          <div className="pd-stat" key={s.label}>
+        {view.stats.map((s) => {
+          const body = (
             <div>
               <div className="pd-stat-value">{s.value}</div>
               <div className="pd-stat-label">{s.label}</div>
             </div>
-          </div>
-        ))}
+          )
+
+          // Staff cards are plain for now. Customer cards filter the table below.
+          if (isStaff) {
+            return <div className="pd-stat" key={s.label}>{body}</div>
+          }
+
+          const active = group === s.key
+          return (
+            <button
+              type="button"
+              key={s.label}
+              className={`pd-stat pd-stat-btn ${active ? 'active' : ''}`}
+              aria-pressed={active}
+              onClick={() => setGroup(active ? null : s.key)}
+            >
+              {body}
+            </button>
+          )
+        })}
       </section>
 
       <section className="pd-card">
         <div className="pd-card-head">
-          <h2>{view.tableTitle}</h2>
+          <h2>
+            {group ? `${GROUPS[group].label} (${shown.length})` : view.tableTitle}
+          </h2>
+          {group && (
+            <button type="button" className="pd-act" onClick={() => setGroup(null)}>
+              Show all
+            </button>
+          )}
         </div>
 
         {error && <p className="err" style={{ marginTop: 0 }}>{error}</p>}
@@ -210,7 +250,11 @@ function Dashboard() {
               {view.rows.length === 0 && (
                 <tr>
                   <td colSpan={view.showActions ? 6 : 5} className="pd-muted">
-                    {loading ? 'Loading your projects…' : 'No projects yet.'}
+                    {loading
+                      ? 'Loading your projects…'
+                      : group
+                        ? `No projects in "${GROUPS[group].label}".`
+                        : 'No projects yet.'}
                   </td>
                 </tr>
               )}

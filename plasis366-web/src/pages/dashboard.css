@@ -353,3 +353,26 @@
 
 .btn-c.danger { background: #a63d2a; }
 .btn-c.danger:hover { background: #7f2d1f; }
+
+   /* Stat cards that act as filters */
+   button.pd-stat-btn {
+     font: inherit;
+     color: inherit;
+     text-align: left;
+     width: 100%;
+     cursor: pointer;
+   }
+   button.pd-stat-btn:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+   }
+   button.pd-stat-btn.active {
+     border-color: var(--gold, #b89a5a);
+     box-shadow: 0 0 0 2px var(--gold, #b89a5a);
+   }
+   .pd-card-head {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     gap: 1rem;
+   }

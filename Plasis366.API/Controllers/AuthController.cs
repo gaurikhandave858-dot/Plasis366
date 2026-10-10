@@ -4,15 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Plasis366.API;
+using Plasis366.API.DTOs;
 using Plasis366.Domain;
 using Plasis366.Infrastructure;
-using static Plasis366.API.AuthDtos;
 
 namespace Plasis366.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
@@ -27,19 +26,8 @@ namespace Plasis366.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.FirstName) ||
-                string.IsNullOrWhiteSpace(request.Email) ||
-                string.IsNullOrEmpty(request.Password) ||
-                request.Password.Length < 6)
-            {
-                return BadRequest(new { message = "First name, email and a password of at least 6 characters are required." });
-            }
-
-            // Only these two account types can be created from the public form.
-            // Admin is deliberately not allowed here.
-            var requestedRole = string.IsNullOrWhiteSpace(request.Role) ? "Customer" : request.Role.Trim();
-            if (requestedRole != "Customer" && requestedRole != "Designer")
-                return BadRequest(new { message = "Invalid account type." });
+            // Field rules (lengths, email format, password strength) are checked
+            // automatically by the attributes in AuthDtos.cs before this code runs.
 
             var email = request.Email.Trim();
 
@@ -54,41 +42,36 @@ namespace Plasis366.API.Controllers
             if (emailTaken)
                 return Conflict(new { message = "This email is already registered." });
 
-            var role = await _db.Roles
-                .FirstOrDefaultAsync(r => r.TenantId == tenant.TenantId && r.RoleName == requestedRole && r.IsActive);
-            if (role == null)
-                return BadRequest(new { message = $"The {requestedRole} role was not found." });
+            var customerRole = await _db.Roles
+                .FirstOrDefaultAsync(r => r.TenantId == tenant.TenantId && r.RoleName == "Customer");
+            if (customerRole == null)
+                return BadRequest(new { message = "The Customer role was not found." });
 
             var user = new User
             {
                 TenantId = tenant.TenantId,
                 FirstName = request.FirstName.Trim(),
-                LastName = request.LastName?.Trim() ?? "",
+                LastName = request.LastName.Trim(),
                 Email = email,
                 PhoneNumber = request.PhoneNumber,
                 UserName = email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
             };
-            user.UserRoles.Add(new UserRole { RoleId = role.RoleId });
+            user.UserRoles.Add(new UserRole { RoleId = customerRole.RoleId });
+
+            var customer = new Customer
+            {
+                TenantId = tenant.TenantId,
+                User = user,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = email,
+                PhoneNumber = request.PhoneNumber,
+                Address = request.Address
+            };
 
             _db.Users.Add(user);
-
-            // Only customers get a row in the Customers table
-            if (requestedRole == "Customer")
-            {
-                var customer = new Customer
-                {
-                    TenantId = tenant.TenantId,
-                    User = user,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = email,
-                    PhoneNumber = request.PhoneNumber,
-                    Address = request.Address
-                };
-                _db.Customers.Add(customer);
-            }
-
+            _db.Customers.Add(customer);
             await _db.SaveChangesAsync();   // saves user, role link and customer together
 
             return Ok(new { message = "Registration successful. Please log in." });
@@ -112,7 +95,6 @@ namespace Plasis366.API.Controllers
                 .Select(ur => ur.Role!.RoleName)
                 .ToList();
 
-            // Null for designers and admins, because they have no Customers row
             var customerId = await _db.Customers
                 .Where(c => c.UserId == user.UserId)
                 .Select(c => (long?)c.CustomerId)

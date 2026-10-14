@@ -3,12 +3,17 @@ import { Link } from 'react-router-dom'
 import StatusBadge from '../components/StatusBadge'
 import api from '../api'
 import { deleteProject } from '../services/projectService'
+import AdminDashboard from './AdminDashboard'
+import DesignerDashboard from './DesignerDashboard'
 import './dashboard.css'
 
 const FLOW = [
   'Draft', 'Submitted', 'Under Review', 'Design In Progress',
   'Design Submitted', 'Customer Review', 'Completed',
 ]
+
+// The customer can change a project until the design has been submitted for review
+const EDITABLE = ['Draft', 'Submitted', 'Under Review', 'Design In Progress', 'Revision Requested']
 
 // Customer view: text only. The numbers and rows come from the API.
 const CUSTOMER = {
@@ -18,7 +23,7 @@ const CUSTOMER = {
   partyLabel: 'Designer',
 }
 
-// Designer view: still sample data for now
+// Manager / Admin view: still sample data for now (designers have their own page)
 const DESIGNER = {
   subtitle: 'Review requirements and move your projects forward.',
   action: null,
@@ -71,7 +76,7 @@ function timeAgo(iso) {
   return new Date(iso).toLocaleDateString()
 }
 
-function Dashboard() {
+function CustomerDashboard() {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
   const roles = user?.roles ?? []
   const isStaff =
@@ -232,12 +237,14 @@ function Dashboard() {
                   {view.showActions && (
                     <td>
                       <div className="pd-actions">
-                        {r.status === 'Draft' ? (
+                        {EDITABLE.includes(r.status) ? (
                           <>
                             <Link className="pd-act" to={`/projects/${r.id}/edit`}>Edit</Link>
-                            <button type="button" className="pd-act danger" onClick={() => setToDelete(r)}>
-                              Delete
-                            </button>
+                            {r.status === 'Draft' && (
+                              <button type="button" className="pd-act danger" onClick={() => setToDelete(r)}>
+                                Delete
+                              </button>
+                            )}
                           </>
                         ) : (
                           <Link className="pd-act" to={`/projects/${r.id}`}>View</Link>
@@ -303,6 +310,15 @@ function Dashboard() {
       )}
     </div>
   )
+}
+
+// Each kind of user gets their own dashboard
+function Dashboard() {
+  const user = JSON.parse(localStorage.getItem('user') || 'null')
+  const roles = user?.roles ?? []
+  if (roles.includes('Admin') || roles.includes('Manager')) return <AdminDashboard />
+  if (roles.includes('Designer')) return <DesignerDashboard />
+  return <CustomerDashboard />
 }
 
 export default Dashboard

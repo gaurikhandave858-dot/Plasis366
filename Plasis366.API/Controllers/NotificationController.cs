@@ -1,94 +1,101 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Plasis366.Application;
+using Microsoft.EntityFrameworkCore;
 using Plasis366.Domain;
+using Plasis366.Infrastructure;
 
 namespace Plasis366.API.Controllers
 {
+    // A user only ever sees and changes their own notifications.
     [Route("api/[controller]")]
     [ApiController]
-    public class NotificationController : ControllerBase
+    [Authorize]
+    public class NotificationsController : ControllerBase
     {
-        private readonly INotificationService _notificationService;
+        private readonly ApplicationDbContext _db;
 
-        public NotificationController(
-            INotificationService notificationService)
+        public NotificationsController(ApplicationDbContext db)
         {
-            _notificationService = notificationService;
+            _db = db;
         }
 
-        // GET: api/Notification
+        private long? CurrentUserId()
+        {
+            var value = User.FindFirstValue("sub") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return long.TryParse(value, out var id) ? id : null;
+        }
+
+        private IQueryable<Notification> Mine(long userId) =>
+            _db.Set<Notification>().Where(n => n.UserId == userId && n.IsActive);
+
+        // The latest notifications plus how many are unread (for the bell badge)
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetMine()
         {
-            var notifications = await _notificationService.GetAllAsync();
+            var userId = CurrentUserId();
+            if (userId == null) return Unauthorized();
 
-            return Ok(notifications);
+            var unread = await Mine(userId.Value).CountAsync(n => !n.IsRead);
+
+            var items = await Mine(userId.Value)
+                .OrderByDescending(n => n.ModifiedDate ?? n.CreatedDate)
+                .Take(30)
+                .Select(n => new
+                {
+                    notificationId = n.NotificationId,
+                    projectId = n.ProjectId,
+                    title = n.Title,
+                    message = n.Message,
+                    isRead = n.IsRead,
+                    created = n.ModifiedDate ?? n.CreatedDate
+                })
+                .ToListAsync();
+
+            return Ok(new { unread, items });
         }
 
-        // GET: api/Notification/1
-        [HttpGet("{notificationId}")]
-        public async Task<IActionResult> GetById(long notificationId)
+        [HttpPost("{notificationId:long}/read")]
+        public async Task<IActionResult> MarkRead(long notificationId)
         {
-            var notification = await _notificationService
-                .GetByIdAsync(notificationId);
+            var userId = CurrentUserId();
+            if (userId == null) return Unauthorized();
 
+            var notification = await Mine(userId.Value)
+                .FirstOrDefaultAsync(n => n.NotificationId == notificationId);
             if (notification == null)
+                return NotFound(new { message = "Notification not found." });
+
+            if (!notification.IsRead)
             {
-                return NotFound("Notification not found.");
+                notification.IsRead = true;
+                notification.ReadDate = DateTime.Now;
+                notification.ModifiedDate = DateTime.Now;
+                notification.ModifiedBy = userId;
+                await _db.SaveChangesAsync();
             }
 
-            return Ok(notification);
+            return Ok(new { notificationId });
         }
 
-        // POST: api/Notification
-        [HttpPost]
-        public async Task<IActionResult> Create(Notification notification)
+        [HttpPost("read-all")]
+        public async Task<IActionResult> MarkAllRead()
         {
-            var createdNotification = await _notificationService
-                .CreateAsync(notification);
+            var userId = CurrentUserId();
+            if (userId == null) return Unauthorized();
 
-            return Ok(createdNotification);
-        }
-
-        // PUT: api/Notification/1
-        [HttpPut("{notificationId}")]
-        public async Task<IActionResult> Update(
-            long notificationId,
-            Notification notification)
-        {
-            if (notificationId != notification.NotificationId)
+            var now = DateTime.Now;
+            var unread = await Mine(userId.Value).Where(n => !n.IsRead).ToListAsync();
+            foreach (var n in unread)
             {
-                return BadRequest("Notification ID does not match.");
+                n.IsRead = true;
+                n.ReadDate = now;
+                n.ModifiedDate = now;
+                n.ModifiedBy = userId;
             }
+            await _db.SaveChangesAsync();
 
-            var existingNotification = await _notificationService
-                .GetByIdAsync(notificationId);
-
-            if (existingNotification == null)
-            {
-                return NotFound("Notification not found.");
-            }
-
-            var updatedNotification = await _notificationService
-                .UpdateAsync(notification);
-
-            return Ok(updatedNotification);
-        }
-
-        // DELETE: api/Notification/1
-        [HttpDelete("{notificationId}")]
-        public async Task<IActionResult> Delete(long notificationId)
-        {
-            var result = await _notificationService
-                .DeleteAsync(notificationId);
-
-            if (!result)
-            {
-                return NotFound("Notification not found.");
-            }
-
-            return Ok("Notification deleted successfully.");
+            return Ok(new { marked = unread.Count });
         }
     }
 }

@@ -36,6 +36,8 @@ namespace Plasis366.Infrastructure
         public DbSet<ProjectStatusHistory> ProjectStatusHistories { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
+        public DbSet<DesignProposalFile> DesignProposalFiles { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -112,6 +114,9 @@ namespace Plasis366.Infrastructure
 
             modelBuilder.Entity<DesignProposal>()
                 .HasKey(x => x.DesignProposalId);
+
+            modelBuilder.Entity<DesignProposalFile>()
+                .HasKey(x => x.DesignProposalFileId);
 
             modelBuilder.Entity<ProjectStatusHistory>()
                 .HasKey(x => x.ProjectStatusHistoryId);
@@ -299,6 +304,12 @@ namespace Plasis366.Infrastructure
                 .HasForeignKey(x => x.SubmittedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<DesignProposalFile>()
+                .HasOne(x => x.DesignProposal)
+                .WithMany(x => x.Files)
+                .HasForeignKey(x => x.DesignProposalId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<ProjectStatusHistory>()
                 .HasOne(x => x.Project)
                 .WithMany()
@@ -469,6 +480,9 @@ namespace Plasis366.Infrastructure
             modelBuilder.Entity<RolePermission>()
                 .HasIndex(x => new { x.RoleId, x.PermissionId })
                 .IsUnique();
+
+            modelBuilder.Entity<DesignProposalFile>()
+                .HasIndex(x => x.DesignProposalId);
         }
     }
 }

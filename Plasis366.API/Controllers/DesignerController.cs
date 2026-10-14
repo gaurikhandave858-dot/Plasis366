@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Plasis366.API;
 using Plasis366.Domain;
 using Plasis366.Infrastructure;
 
@@ -153,12 +154,20 @@ namespace Plasis366.API.Controllers
                 .OrderBy(d => d.DesignRequirementId)
                 .FirstOrDefault(d => d.RoomId == null);
 
+            // The latest edit the customer made after a designer was assigned (written by MyProjectsController.Update)
+            var lastUpdate = await _db.Set<ProjectStatusHistory>()
+                .Where(h => h.ProjectId == projectId && h.Remarks != null && h.Remarks.StartsWith("Customer updated:"))
+                .OrderByDescending(h => h.CreatedDate)
+                .Select(h => new { text = h.Remarks, when = h.CreatedDate })
+                .FirstOrDefaultAsync();
+
             return Ok(new
             {
                 projectId = project.ProjectId,
                 projectCode = project.ProjectCode,
                 status = project.Status,
                 isMine = project.DesignerUserId == userId,
+                lastCustomerUpdate = lastUpdate,
                 customerName,
                 projectName = project.ProjectName,
                 description = project.Description,
@@ -227,6 +236,30 @@ namespace Plasis366.API.Controllers
                 ChangedBy = userId.Value,
                 CreatedBy = userId
             });
+
+            // Tell the customer that a designer is now working on their project
+            var info = await _db.Projects
+                .Where(p => p.ProjectId == projectId)
+                .Select(p => new
+                {
+                    p.ProjectCode,
+                    p.ProjectName,
+                    CustomerUserId = _db.Customers
+                        .Where(c => c.CustomerId == p.CustomerId)
+                        .Select(c => (long?)c.UserId)
+                        .FirstOrDefault()
+                })
+                .FirstOrDefaultAsync();
+
+            if (info?.CustomerUserId != null)
+            {
+                var designerName = User.FindFirstValue("name") ?? "A designer";
+                NotificationHelper.Add(_db, info.CustomerUserId.Value, projectId,
+                    "A designer is reviewing your project",
+                    $"{designerName} has taken {info.ProjectCode} ({info.ProjectName}). It is now under review.",
+                    userId);
+            }
+
             await _db.SaveChangesAsync();
 
             return Ok(new { projectId, status = "Under Review" });

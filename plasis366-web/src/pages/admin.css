@@ -1,0 +1,90 @@
+/* Admin dashboard and users page */
+.ad-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.ad-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 10px;
+}
+.ad-tile-count {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.ad-tile-share {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.ad-tile .ad-bar {
+  width: 100%;
+  margin-top: 0.3rem;
+}
+.ad-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(128, 128, 128, 0.18);
+  overflow: hidden;
+}
+.ad-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--gold, #b89a5a);
+  border-radius: 999px;
+}
+.ad-tools {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.ad-tools input[type='search'] {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid rgba(128, 128, 128, 0.45);
+  border-radius: 6px;
+  padding: 0.5rem 0.7rem;
+  min-width: 240px;
+}
+.ad-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.ad-tab {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid rgba(128, 128, 128, 0.45);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  cursor: pointer;
+}
+.ad-tab.active {
+  border-color: var(--gold, #b89a5a);
+  background: rgba(184, 154, 90, 0.15);
+}
+
+/* Status tiles that can be clicked */
+.ad-tile-btn {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.ad-tile-btn:hover {
+  border-color: var(--gold, #b89a5a);
+}
+.ad-tile-btn.active {
+  border-color: var(--gold, #b89a5a);
+  background: rgba(184, 154, 90, 0.15);
+}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import api from '../api'
 import AttachmentsSection from '../components/AttachmentsSection'
+import ProposalSection from '../components/ProposalSection'
 import {
   createProject,
   getProject,
@@ -82,8 +83,13 @@ function ProjectForm({ id }) {
   const [notice, setNotice] = useState(location.state?.notice || '')
   const [saving, setSaving] = useState(false)
 
-  // Submitted and later projects are shown read-only
-  const readOnly = isEdit && meta != null && meta.status !== 'Draft'
+  // The API says whether the project can still be changed. Once the design has been
+  // submitted for review (or the project is approved or completed) the form is read-only.
+  const readOnly = isEdit && meta != null && !meta.canEdit
+
+  // A project that is not a Draft any more has already been sent to the designers
+  const isDraft = !isEdit || meta?.status === 'Draft'
+  const designerAssigned = isEdit && ['Under Review', 'Design In Progress', 'Revision Requested'].includes(meta?.status)
 
   useEffect(() => {
     let cancelled = false
@@ -138,7 +144,7 @@ function ProjectForm({ id }) {
                 }))
               : [newRoom()]
           )
-          setMeta({ status: p.status, projectCode: p.projectCode })
+          setMeta({ status: p.status, projectCode: p.projectCode, canEdit: p.canEdit })
           setExisting(await listAttachments(id))
         }
 
@@ -338,7 +344,7 @@ function ProjectForm({ id }) {
   const heroSub = readOnly
     ? `${meta.projectCode} · ${meta.status}. This project can no longer be edited.`
     : isEdit
-      ? `${meta.projectCode} · Draft. Changes are saved when you press Save.`
+      ? `${meta.projectCode} · ${meta.status}. Changes are saved when you press Save.`
       : 'Tell us about your space. You can save it as a draft and submit it later.'
 
   return (
@@ -352,6 +358,24 @@ function ProjectForm({ id }) {
       </section>
 
       {notice && <p className="np-notice">{notice}</p>}
+
+      {!readOnly && isEdit && !isDraft && (
+        <p className="np-notice">
+          {designerAssigned
+            ? 'A designer is already working on this project. When you save, they will be told what you changed.'
+            : 'Your project is waiting for a designer. You can still make changes until one takes it.'}
+        </p>
+      )}
+
+      {isEdit && (
+        <ProposalSection
+          projectId={id}
+          status={meta.status}
+          onAnswered={(status) =>
+            setMeta((m) => ({ ...m, status, canEdit: status === 'Revision Requested' }))
+          }
+        />
+      )}
 
       <fieldset className="np-fieldset" disabled={readOnly}>
         <section className="pd-card">
@@ -509,12 +533,20 @@ function ProjectForm({ id }) {
       <div className="np-actions">
         {!readOnly && (
           <>
-            <button className="btn-c np-secondary" type="submit" data-action="save" disabled={saving}>
-              {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Save as draft'}
-            </button>
-            <button className="btn-c" type="submit" data-action="submit" disabled={saving}>
-              {saving ? 'Please wait…' : 'Submit to designer'}
-            </button>
+            {isDraft ? (
+              <>
+                <button className="btn-c np-secondary" type="submit" data-action="save" disabled={saving}>
+                  {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Save as draft'}
+                </button>
+                <button className="btn-c" type="submit" data-action="submit" disabled={saving}>
+                  {saving ? 'Please wait…' : 'Submit to designer'}
+                </button>
+              </>
+            ) : (
+              <button className="btn-c" type="submit" data-action="save" disabled={saving}>
+                {saving ? 'Saving…' : 'Save changes'}
+              </button>
+            )}
           </>
         )}
         <Link to="/dashboard" className="np-cancel">{readOnly ? 'Back to dashboard' : 'Cancel'}</Link>

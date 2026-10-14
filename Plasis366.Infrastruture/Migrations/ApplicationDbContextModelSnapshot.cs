@@ -31,7 +31,8 @@ namespace Plasis366.Infrastruture.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CityId"));
 
                     b.Property<string>("CityCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("CityName")
                         .IsRequired()
@@ -79,7 +80,8 @@ namespace Plasis366.Infrastruture.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CountryId"));
 
                     b.Property<string>("CountryCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("CountryName")
                         .IsRequired()
@@ -127,7 +129,8 @@ namespace Plasis366.Infrastruture.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CustomerId"));
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<long?>("CreatedBy")
                         .HasColumnType("bigint");
@@ -137,11 +140,13 @@ namespace Plasis366.Infrastruture.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -150,7 +155,8 @@ namespace Plasis366.Infrastruture.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<long?>("ModifiedBy")
                         .HasColumnType("bigint");
@@ -159,7 +165,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
@@ -195,11 +202,23 @@ namespace Plasis366.Infrastruture.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CustomerFeedback")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<decimal?>("EstimatedCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("EstimatedDays")
+                        .HasColumnType("int");
 
                     b.Property<string>("FilePath")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -216,14 +235,19 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("ProposalTitle")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("ProposalVersion")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("ReviewedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<long>("SubmittedBy")
                         .HasColumnType("bigint");
@@ -245,6 +269,63 @@ namespace Plasis366.Infrastruture.Migrations
                     b.ToTable("DesignProposals");
                 });
 
+            modelBuilder.Entity("Plasis366.Domain.DesignProposalFile", b =>
+                {
+                    b.Property<long>("DesignProposalFileId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DesignProposalFileId"));
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("DesignProposalId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<long?>("ModifiedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("VersionNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(1L);
+
+                    b.HasKey("DesignProposalFileId");
+
+                    b.HasIndex("DesignProposalId");
+
+                    b.ToTable("DesignProposalFiles");
+                });
+
             modelBuilder.Entity("Plasis366.Domain.DesignRequirement", b =>
                 {
                     b.Property<long>("DesignRequirementId")
@@ -254,7 +335,8 @@ namespace Plasis366.Infrastruture.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DesignRequirementId"));
 
                     b.Property<string>("AdditionalNotes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<decimal?>("Budget")
                         .HasPrecision(18, 2)
@@ -267,7 +349,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FurnitureRequirements")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -275,7 +358,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasDefaultValue(true);
 
                     b.Property<string>("LightingRequirements")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<long?>("ModifiedBy")
                         .HasColumnType("bigint");
@@ -284,10 +368,12 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PreferredColors")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("PreferredStyle")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<long>("ProjectId")
                         .HasColumnType("bigint");
@@ -296,10 +382,12 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("SpecialRequirements")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(3000)
+                        .HasColumnType("nvarchar(3000)");
 
                     b.Property<string>("StorageRequirements")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<long>("VersionNumber")
                         .ValueGeneratedOnAdd()
@@ -330,7 +418,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DistrictCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("DistrictName")
                         .IsRequired()
@@ -387,7 +476,8 @@ namespace Plasis366.Infrastruture.Migrations
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<long?>("ModifiedBy")
                         .HasColumnType("bigint");
@@ -438,7 +528,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -492,7 +583,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<long?>("DesignerUserId")
                         .HasColumnType("bigint");
@@ -564,21 +656,25 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<long?>("FileSize")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FileType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -638,11 +734,13 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("StatusDate")
                         .HasColumnType("datetime2");
@@ -670,7 +768,8 @@ namespace Plasis366.Infrastruture.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PropertyId"));
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<long?>("CityId")
                         .HasColumnType("bigint");
@@ -711,11 +810,13 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("PropertyName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("PropertyType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<long?>("RegionId")
                         .HasColumnType("bigint");
@@ -779,7 +880,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RegionCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("RegionName")
                         .IsRequired()
@@ -811,7 +913,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -906,7 +1009,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Details")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<int?>("DoorCount")
                         .HasColumnType("int");
@@ -934,11 +1038,13 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("RoomName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("RoomType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<long>("VersionNumber")
                         .ValueGeneratedOnAdd()
@@ -988,7 +1094,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("StateCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("StateName")
                         .IsRequired()
@@ -1036,7 +1143,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TalukaCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("TalukaName")
                         .IsRequired()
@@ -1064,7 +1172,8 @@ namespace Plasis366.Infrastruture.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("TenantId"));
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<long?>("CountryId")
                         .HasColumnType("bigint");
@@ -1076,10 +1185,12 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1093,7 +1204,8 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("TenantCode")
                         .IsRequired()
@@ -1141,7 +1253,8 @@ namespace Plasis366.Infrastruture.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1150,7 +1263,8 @@ namespace Plasis366.Infrastruture.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<long?>("ModifiedBy")
                         .HasColumnType("bigint");
@@ -1164,10 +1278,12 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("ProfileImage")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
@@ -1301,6 +1417,17 @@ namespace Plasis366.Infrastruture.Migrations
                     b.Navigation("Project");
 
                     b.Navigation("SubmittedByUser");
+                });
+
+            modelBuilder.Entity("Plasis366.Domain.DesignProposalFile", b =>
+                {
+                    b.HasOne("Plasis366.Domain.DesignProposal", "DesignProposal")
+                        .WithMany("Files")
+                        .HasForeignKey("DesignProposalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DesignProposal");
                 });
 
             modelBuilder.Entity("Plasis366.Domain.DesignRequirement", b =>
@@ -1580,6 +1707,11 @@ namespace Plasis366.Infrastruture.Migrations
             modelBuilder.Entity("Plasis366.Domain.Customer", b =>
                 {
                     b.Navigation("Projects");
+                });
+
+            modelBuilder.Entity("Plasis366.Domain.DesignProposal", b =>
+                {
+                    b.Navigation("Files");
                 });
 
             modelBuilder.Entity("Plasis366.Domain.District", b =>

@@ -1,0 +1,124 @@
+/* Proposal list and designer work area (used by designers and customers) */
+.pr-item {
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+.pr-item + .pr-item {
+  margin-top: 0.9rem;
+}
+.pr-item.latest {
+  border-color: var(--gold, #b89a5a);
+}
+.pr-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.pr-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.pr-tag {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  opacity: 0.85;
+}
+.pr-facts {
+  display: flex;
+  gap: 1.6rem;
+  flex-wrap: wrap;
+}
+.pr-note {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+.pr-feedback {
+  padding: 0.7rem 0.9rem;
+  border-left: 4px solid var(--gold, #b89a5a);
+  background: rgba(184, 154, 90, 0.12);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Designer work area */
+.dw-form {
+  display: grid;
+  gap: 1rem;
+}
+.dw-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.dw-field {
+  display: grid;
+  gap: 0.3rem;
+}
+.dw-field label {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.dw-field input[type='text'],
+.dw-field input[type='number'],
+.dw-field textarea {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid rgba(128, 128, 128, 0.45);
+  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.dw-field textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+.dw-hint {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.dw-chosen {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.dw-chosen li {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.dw-wait {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.dw-wait h2 {
+  margin: 0 0 0.25rem;
+}
+
+/* Customer's answer buttons */
+.pr-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Plasis366.Domain
 {
@@ -30,8 +32,24 @@ namespace Plasis366.Domain
 
         public DateTime? SubmittedDate { get; set; }
 
+        // What the designer estimates for this proposal
+        [Column(TypeName = "decimal(18,2)")]
+        [Range(0.0, 100000000000.0)]
+        public decimal? EstimatedCost { get; set; }
+
+        [Range(1, 3650)]
+        public int? EstimatedDays { get; set; }
+
+        // The customer's answer: Approved, or Revision Requested with a comment
+        [StringLength(2000)]
+        public string? CustomerFeedback { get; set; }
+
+        public DateTime? ReviewedDate { get; set; }
+
         public Project? Project { get; set; }
 
         public User? SubmittedByUser { get; set; }
+
+        public ICollection<DesignProposalFile> Files { get; set; } = new List<DesignProposalFile>();
     }
 }

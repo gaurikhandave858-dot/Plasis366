@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Plasis366.API;
 using Plasis366.Domain;
 using Plasis366.Infrastructure;
 
@@ -27,6 +28,13 @@ namespace Plasis366.API.Controllers
             [".webp"] = "image/webp",
             [".pdf"] = "application/pdf"
         };
+
+        // The customer may change a project (and its files) while it is in one of these statuses.
+        // From "Design Submitted" onwards it is locked.
+        private static readonly string[] EditableStatuses =
+            { "Draft", "Submitted", "Under Review", "Design In Progress", "Revision Requested" };
+
+        private static bool CanEdit(string status) => EditableStatuses.Contains(status);
 
         private readonly ApplicationDbContext _db;
         private readonly IConfiguration _config;
@@ -179,6 +187,7 @@ namespace Plasis366.API.Controllers
                 projectId = project.ProjectId,
                 projectCode = project.ProjectCode,
                 status = project.Status,
+                canEdit = CanEdit(project.Status),
                 projectName = project.ProjectName,
                 description = project.Description,
                 budgetMin = project.BudgetMin,
@@ -317,7 +326,8 @@ namespace Plasis366.API.Controllers
             return Ok(new { projectId = project.ProjectId, projectCode = project.ProjectCode });
         }
 
-        // Saves changes to a draft project
+        // Saves changes to a project that is still being worked on.
+        // When a designer is assigned, they are told what changed.
         [HttpPut("{projectId:long}")]
         public async Task<IActionResult> Update(long projectId, CreateProjectRequest request)
         {
@@ -325,13 +335,34 @@ namespace Plasis366.API.Controllers
             var project = await LoadOwnedProjectGraph(projectId);
             if (project == null)
                 return NotFound(new { message = "Project not found." });
-            if (project.Status != "Draft")
-                return BadRequest(new { message = "Only draft projects can be edited." });
+            if (!CanEdit(project.Status))
+                return BadRequest(new { message = "This project can no longer be edited because the design has been submitted." });
 
             var invalid = Validate(request);
             if (invalid != null) return invalid;
 
             var now = DateTime.Now;
+
+            // Collects the names of the sections that really changed, for the designer's notification
+            var changed = new List<string>();
+            void Diff(string label, object? before, object? after)
+            {
+                static string Norm(object? v) => v switch
+                {
+                    null => "",
+                    string s => s.Trim(),
+                    decimal d => d.ToString("0.####"),
+                    DateTime dt => dt.ToString("yyyy-MM-dd"),
+                    _ => v.ToString() ?? ""
+                };
+                if (Norm(before) != Norm(after) && !changed.Contains(label)) changed.Add(label);
+            }
+
+            Diff("project name", project.ProjectName, request.ProjectName);
+            Diff("description", project.Description, request.Description);
+            Diff("budget", project.BudgetMin, request.BudgetMin);
+            Diff("budget", project.BudgetMax, request.BudgetMax);
+            Diff("start date", project.ExpectedStartDate, request.ExpectedStartDate);
 
             project.ProjectName = request.ProjectName.Trim();
             project.Description = request.Description;
@@ -348,6 +379,18 @@ namespace Plasis366.API.Controllers
                 property = new Property { CreatedBy = userId };
                 project.Properties.Add(property);
             }
+            Diff("property details", property.PropertyType, request.PropertyType);
+            Diff("property details", property.PropertyName, request.PropertyName);
+            Diff("property details", property.TotalArea, request.TotalArea);
+            Diff("property details", property.NumberOfFloors, request.NumberOfFloors);
+            Diff("location", property.Address, request.Address);
+            Diff("location", property.RegionId, request.RegionId);
+            Diff("location", property.CountryId, request.CountryId);
+            Diff("location", property.StateId, request.StateId);
+            Diff("location", property.DistrictId, request.DistrictId);
+            Diff("location", property.TalukaId, request.TalukaId);
+            Diff("location", property.CityId, request.CityId);
+
             property.PropertyType = request.PropertyType.Trim();
             property.PropertyName = request.PropertyName;
             property.Address = request.Address;
@@ -368,6 +411,7 @@ namespace Plasis366.API.Controllers
 
             foreach (var gone in property.Rooms.Where(r => r.IsActive && !keep.Contains(r.RoomId)).ToList())
             {
+                Diff("rooms", "active", "removed");
                 gone.IsActive = false;
                 gone.ModifiedDate = now;
                 gone.ModifiedBy = userId;
@@ -381,11 +425,17 @@ namespace Plasis366.API.Controllers
 
                 if (room == null)
                 {
+                    Diff("rooms", "none", "added");
                     room = new Room { CreatedBy = userId };
                     property.Rooms.Add(room);
                 }
                 else
                 {
+                    Diff("rooms", room.RoomType, r.RoomType);
+                    Diff("rooms", room.RoomName, r.RoomName);
+                    Diff("rooms", room.Length, r.Length);
+                    Diff("rooms", room.Width, r.Width);
+                    Diff("rooms", room.Height, r.Height);
                     room.ModifiedDate = now;
                     room.ModifiedBy = userId;
                 }
@@ -411,6 +461,14 @@ namespace Plasis366.API.Controllers
             }
             if (requirement != null)
             {
+                Diff("requirements", requirement.PreferredStyle, req?.PreferredStyle);
+                Diff("requirements", requirement.PreferredColors, req?.PreferredColors);
+                Diff("requirements", requirement.FurnitureRequirements, req?.FurnitureRequirements);
+                Diff("requirements", requirement.StorageRequirements, req?.StorageRequirements);
+                Diff("requirements", requirement.LightingRequirements, req?.LightingRequirements);
+                Diff("requirements", requirement.SpecialRequirements, req?.SpecialRequirements);
+                Diff("requirements", requirement.AdditionalNotes, req?.AdditionalNotes);
+
                 requirement.PreferredStyle = req?.PreferredStyle;
                 requirement.PreferredColors = req?.PreferredColors;
                 requirement.FurnitureRequirements = req?.FurnitureRequirements;
@@ -420,6 +478,22 @@ namespace Plasis366.API.Controllers
                 requirement.AdditionalNotes = req?.AdditionalNotes;
                 requirement.ModifiedDate = now;
                 requirement.ModifiedBy = userId;
+            }
+
+            // Tell the assigned designer, and keep a line in the project history
+            if (project.DesignerUserId != null && changed.Count > 0)
+            {
+                await NotificationHelper.NotifyProjectChangedAsync(
+                    _db, project.DesignerUserId.Value, project.ProjectId, project.ProjectCode, changed, userId);
+
+                _db.Set<ProjectStatusHistory>().Add(new ProjectStatusHistory
+                {
+                    ProjectId = project.ProjectId,
+                    Status = project.Status,
+                    Remarks = "Customer updated: " + string.Join(", ", changed),
+                    ChangedBy = userId!.Value,
+                    CreatedBy = userId
+                });
             }
 
             await _db.SaveChangesAsync();
@@ -525,8 +599,8 @@ namespace Plasis366.API.Controllers
             var project = await OwnedProject(projectId);
             if (project == null)
                 return NotFound(new { message = "Project not found." });
-            if (project.Status != "Draft")
-                return BadRequest(new { message = "Files can only be added while the project is a draft." });
+            if (!CanEdit(project.Status))
+                return BadRequest(new { message = "Files can only be added while the project is still being edited." });
 
             if (files.Count == 0)
                 return BadRequest(new { message = "Please choose at least one file." });
@@ -597,6 +671,13 @@ namespace Plasis366.API.Controllers
                 });
             }
 
+            // Tell the assigned designer that new files arrived
+            if (project.DesignerUserId != null)
+            {
+                await NotificationHelper.NotifyProjectChangedAsync(
+                    _db, project.DesignerUserId.Value, project.ProjectId, project.ProjectCode, new[] { "files" }, userId);
+            }
+
             try
             {
                 await _db.SaveChangesAsync();
@@ -665,8 +746,8 @@ namespace Plasis366.API.Controllers
             var project = await OwnedProject(projectId);
             if (project == null)
                 return NotFound(new { message = "Project not found." });
-            if (project.Status != "Draft")
-                return BadRequest(new { message = "Files can only be removed while the project is a draft." });
+            if (!CanEdit(project.Status))
+                return BadRequest(new { message = "Files can only be removed while the project is still being edited." });
 
             var attachment = await _db.ProjectAttachments.FirstOrDefaultAsync(a =>
                 a.ProjectAttachmentId == attachmentId && a.ProjectId == projectId && a.IsActive);
@@ -676,6 +757,12 @@ namespace Plasis366.API.Controllers
             attachment.IsActive = false;
             attachment.ModifiedDate = DateTime.Now;
             attachment.ModifiedBy = CurrentUserId();
+
+            if (project.DesignerUserId != null)
+            {
+                await NotificationHelper.NotifyProjectChangedAsync(
+                    _db, project.DesignerUserId.Value, project.ProjectId, project.ProjectCode, new[] { "files" }, CurrentUserId());
+            }
             await _db.SaveChangesAsync();
 
             var root = Path.GetFullPath(UploadRoot());

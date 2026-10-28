@@ -1,10 +1,11 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;   
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Plasis366.API.DTOs;
+using Plasis366.Application;
 using Plasis366.Domain;
 using Plasis366.Infrastructure;
 
@@ -24,6 +25,7 @@ namespace Plasis366.API.Controllers
         }
 
         [HttpPost("register")]
+        [EnableRateLimiting("login")]   
         public async Task<IActionResult> Register(RegisterRequest request)
         {
             // Field rules (lengths, email format, password strength) are checked
@@ -78,6 +80,7 @@ namespace Plasis366.API.Controllers
         }
 
         [HttpPost("login")]
+        [EnableRateLimiting("login")]   // added
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var email = request.Email.Trim();

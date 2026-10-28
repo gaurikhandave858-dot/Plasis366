@@ -17,7 +17,7 @@ namespace Plasis366.Infrastruture.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -1041,6 +1041,9 @@ namespace Plasis366.Infrastruture.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<long?>("RoomTemplateId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("RoomType")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1062,7 +1065,127 @@ namespace Plasis366.Infrastruture.Migrations
 
                     b.HasIndex("PropertyId");
 
+                    b.HasIndex("RoomTemplateId");
+
                     b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("Plasis366.Domain.RoomTemplate", b =>
+                {
+                    b.Property<long>("RoomTemplateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RoomTemplateId"));
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<long?>("ModifiedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("RoomType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Style")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("VersionNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(1L);
+
+                    b.HasKey("RoomTemplateId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("RoomTemplate");
+                });
+
+            modelBuilder.Entity("Plasis366.Domain.RoomTemplateImage", b =>
+                {
+                    b.Property<long>("RoomTemplateImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RoomTemplateImageId"));
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<long?>("ModifiedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("RoomTemplateId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<long>("VersionNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(1L);
+
+                    b.HasKey("RoomTemplateImageId");
+
+                    b.HasIndex("RoomTemplateId");
+
+                    b.ToTable("RoomTemplateImage");
                 });
 
             modelBuilder.Entity("Plasis366.Domain.State", b =>
@@ -1624,7 +1747,35 @@ namespace Plasis366.Infrastruture.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Plasis366.Domain.RoomTemplate", "RoomTemplate")
+                        .WithMany()
+                        .HasForeignKey("RoomTemplateId");
+
                     b.Navigation("Property");
+
+                    b.Navigation("RoomTemplate");
+                });
+
+            modelBuilder.Entity("Plasis366.Domain.RoomTemplate", b =>
+                {
+                    b.HasOne("Plasis366.Domain.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Plasis366.Domain.RoomTemplateImage", b =>
+                {
+                    b.HasOne("Plasis366.Domain.RoomTemplate", "RoomTemplate")
+                        .WithMany("Images")
+                        .HasForeignKey("RoomTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RoomTemplate");
                 });
 
             modelBuilder.Entity("Plasis366.Domain.State", b =>
@@ -1755,6 +1906,11 @@ namespace Plasis366.Infrastruture.Migrations
             modelBuilder.Entity("Plasis366.Domain.Room", b =>
                 {
                     b.Navigation("DesignRequirements");
+                });
+
+            modelBuilder.Entity("Plasis366.Domain.RoomTemplate", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("Plasis366.Domain.State", b =>

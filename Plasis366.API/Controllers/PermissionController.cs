@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Plasis366.Application;
 using Plasis366.Domain;
@@ -7,6 +8,7 @@ namespace Plasis366.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class PermissionController : ControllerBase
     {
         private readonly IPermissionService _permissionService;

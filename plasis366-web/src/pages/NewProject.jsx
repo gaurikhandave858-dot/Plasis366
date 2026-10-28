@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import api from '../api'
 import AttachmentsSection from '../components/AttachmentsSection'
 import ProposalSection from '../components/ProposalSection'
+import StatusTimeline from '../components/StatusTimeline'
 import {
   createProject,
   getProject,
@@ -376,6 +377,8 @@ function ProjectForm({ id }) {
           }
         />
       )}
+
+      {isEdit && !isDraft && <StatusTimeline projectId={id} status={meta.status} />}
 
       <fieldset className="np-fieldset" disabled={readOnly}>
         <section className="pd-card">

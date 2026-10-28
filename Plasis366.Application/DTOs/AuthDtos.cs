@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Plasis366.API.DTOs
+namespace Plasis366.Application
 {
     public class RegisterRequest
     {

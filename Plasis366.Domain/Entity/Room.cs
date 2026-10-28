@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Plasis366.Domain;
 
 namespace Plasis366.Domain
 {
@@ -35,6 +36,10 @@ namespace Plasis366.Domain
         public string? Details { get; set; }
 
         public Property? Property { get; set; }
+
+        public long? RoomTemplateId { get; set; }
+
+        public RoomTemplate? RoomTemplate { get; set; }
 
         public ICollection<DesignRequirement> DesignRequirements { get; set; } = new List<DesignRequirement>();
     }
